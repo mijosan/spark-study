@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,23 @@ public class TransformationTest {
         if (sc != null) {
             sc.stop();
         }
+    }
+
+    @Test
+    public void mapPartitionsWithIndexTest() {
+        JavaRDD<Integer> rdd1 = sc.parallelize(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 3);
+
+        JavaRDD<Integer> rdd2 = rdd1.mapPartitionsWithIndex((Integer idx, Iterator<Integer> numbers) -> {
+            List<Integer> result = new ArrayList<Integer>();
+
+                if (idx == 0) {
+                    numbers.forEachRemaining(i -> result.add(i + 1));
+                }
+                
+                return result.iterator();
+            }, true);
+
+            assertThat(rdd2.collect().get(0)).isEqualTo(2);
     }
 
     // 각 파티션 요소에 대한 이터레이터를 전달받아 함수 내부에서 파티션의 개별 요소에 대한
