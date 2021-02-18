@@ -40,6 +40,111 @@ public class TransformationTest {
     }
 
     @Test
+    public void Test() {
+        // given
+
+        // when
+
+        // then
+    }
+
+    @Test
+    public void joinTest() {
+        // given
+        
+        // when
+
+        // then
+    }
+
+    @Test
+    public void intersectionTest() {
+        // given
+        JavaRDD<String> rdd1 = sc.parallelize(Arrays.asList("d", "e", "c", "d", "e"));
+        JavaRDD<String> rdd2 = sc.parallelize(Arrays.asList("d", "e"));
+
+        // when
+        JavaRDD<String> result = rdd1.intersection(rdd2);
+
+        // then
+        System.out.println(result.collect());
+        assertThat(result.collect().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void unionTest() {
+        // given
+        JavaRDD<String> rdd1 = sc.parallelize(Arrays.asList("a", "b", "c", "d", "e"));
+        JavaRDD<String> rdd2 = sc.parallelize(Arrays.asList("d", "e"));
+
+        // when
+        JavaRDD<String> result = rdd1.union(rdd2);
+
+        // then
+        System.out.println(result.collect());
+        assertThat(result.collect().size()).isEqualTo(7);
+    }
+
+    @Test
+    public void subtractTest() {
+        // given
+        JavaRDD<String> rdd1 = sc.parallelize(Arrays.asList("a", "b", "c", "d", "e"));
+        JavaRDD<String> rdd2 = sc.parallelize(Arrays.asList("d", "e"));
+
+        // when
+        JavaRDD<String> result = rdd1.subtract(rdd2);
+
+        // then
+        System.out.println(result.collect());
+        assertThat(result.collect().size()).isEqualTo(3);
+    }
+
+    @Test
+    public void cartesianTest() {
+        // given
+        JavaRDD<Integer> rdd1 = sc.parallelize(Arrays.asList(1, 2, 3));
+        JavaRDD<String> rdd2 = sc.parallelize(Arrays.asList("a", "b", "c"));
+
+        // when
+        JavaPairRDD<Integer, String> result = rdd1.cartesian(rdd2);
+
+        // then
+        System.out.println(result.collect());
+        assertThat(result.collect().size()).isEqualTo(9);
+    }
+
+    @Test
+    public void distinctTest() {
+        // given
+        JavaRDD<Integer> rdd1 = sc.parallelize(Arrays.asList(1, 2, 3, 1, 2, 3, 1, 2, 3));
+
+        // when
+        JavaRDD<Integer> result = rdd1.distinct();
+
+        // then
+        System.out.println(result.collect());
+        assertThat(result.collect().size()).isEqualTo(3);
+    }
+
+    @Test
+    public void cogroupTest() {
+        // given
+        List<Tuple2<String, String>> data1 = Arrays.asList(new Tuple2("k1", "v1"), new Tuple2("k2", "v2"), new Tuple2("k1", "v3"));
+        List<Tuple2<String, String>> data2 = Arrays.asList(new Tuple2("k1", "v4"));
+
+        JavaPairRDD<String, String> rdd1 = sc.parallelizePairs(data1);
+        JavaPairRDD<String, String> rdd2 = sc.parallelizePairs(data2);
+
+        // when
+        JavaPairRDD<String, Tuple2<Iterable<String>, Iterable<String>>> result = rdd1.cogroup(rdd2);
+
+        // then
+        System.out.println(result.collect());
+        assertThat(result.collect().get(0)._1()).isEqualTo("k1");
+        assertThat(result.collect().get(1)._1()).isEqualTo("k2");
+    }
+
+    @Test
     public void groupByKeyTest() {
         // given
         List<Tuple2<String, Integer>> data = Arrays.asList(new Tuple2("a", 1), new Tuple2("b", 1), new Tuple2("c", 1));
