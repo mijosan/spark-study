@@ -8,12 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 import com.wikibooks.spark.ch02.WordCount;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,7 @@ public class TransformationTest {
     }
 
     @Test
-    public void Test() {
+    public void test() {
         // given
 
         // when
@@ -49,12 +51,87 @@ public class TransformationTest {
     }
 
     @Test
-    public void joinTest() {
+    public void test() {
         // given
-        
+
         // when
 
         // then
+    }
+
+    @Test
+    public void filterTest() {
+        // given
+        JavaRDD<Integer> rdd1 = sc.parallelize(Arrays.asList(1, 2, 3, 4, 5, 6));
+
+        // when
+        JavaRDD<Integer> rdd2 = rdd1.filter(n -> n > 2);
+
+        // then
+        System.out.println(rdd2.collect());
+        assertThat(rdd2.collect().size()).isEqualTo(4);
+    }
+
+    @Test
+    public void cutTest() {
+        // given
+        JavaRDD<String> rdd = sc.parallelize(Arrays.asList("1,2,3", "4,5,6", "7,8,9"));
+
+        // when
+        JavaRDD<String> result = rdd.pipe("cut -f 1,3 -d ,");
+
+        // then
+        System.out.println(result.collect());
+    }
+
+
+    @Test
+    public void reduceByKeyTest() {
+        // given
+        List<Tuple2<String, Integer>> data = Arrays.asList(new Tuple2("a", 1), new Tuple2("b", 1), new Tuple2("b", 1));
+        JavaPairRDD<String, Integer> rdd = sc.parallelizePairs(data);
+
+        // when
+        JavaPairRDD<String, Integer> result = rdd.reduceByKey((n, m) -> n + m);
+
+        // then
+        System.out.println(result.collect());
+    }
+
+    @Test
+    public void leftRightTest() {
+        // given
+        List<Tuple2<String, Integer>> data1 = Arrays.asList(new Tuple2("a", 1), new Tuple2("b", 1), new Tuple2("c", "1"));
+        List<Tuple2<String, Integer>> data2 = Arrays.asList(new Tuple2("b", 2), new Tuple2("c", "2"));
+
+        JavaPairRDD<String, Integer> rdd1 = sc.parallelizePairs(data1);
+        JavaPairRDD<String, Integer> rdd2 = sc.parallelizePairs(data2);
+        
+        // when
+        JavaPairRDD<String, Tuple2<Integer, Optional<Integer>>> result1 = rdd1.leftOuterJoin(rdd2);
+        JavaPairRDD<String, Tuple2<Optional<Integer>, Integer>> result2 = rdd1.rightOuterJoin(rdd2);
+
+        // then
+        System.out.println("Left: " + result1.collect());
+        System.out.println("Right: " + result2.collect());
+    }
+
+
+    // ??
+    @Test
+    public void joinTest() {
+        // given
+        List<Tuple2<String, Integer>> data1 = Arrays.asList(new Tuple2("a",1 ), new Tuple2("b",1 ), new Tuple2("c",1 ), new Tuple2("d",1 ), new Tuple2("e",1 ));
+        List<Tuple2<String, Integer>> data2 = Arrays.asList(new Tuple2("b",2 ), new Tuple2("c",2 ));
+
+        JavaPairRDD<String, Integer> rdd1 = sc.parallelizePairs(data1);        
+        JavaPairRDD<String, Integer> rdd2 = sc.parallelizePairs(data2);        
+
+        // when
+        JavaPairRDD<String, Tuple2<Integer, Integer>> result = rdd1.join(rdd2);
+
+        // then
+        System.out.println(result.collect());
     }
 
     @Test
