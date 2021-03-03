@@ -42,24 +42,6 @@ public class TransformationTest {
     }
 
     @Test
-    public void test() {
-        // given
-
-        // when
-
-        // then
-    }
-
-    @Test
-    public void test() {
-        // given
-
-        // when
-
-        // then
-    }
-
-    @Test
     public void filterTest() {
         // given
         JavaRDD<Integer> rdd1 = sc.parallelize(Arrays.asList(1, 2, 3, 4, 5, 6));
